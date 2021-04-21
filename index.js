@@ -3,26 +3,24 @@ var url = require('url');
 var fs = require('fs')
 
 http
-    .createServer(function(req, res){
+    .createServer((req, res)=>{
         var q = url.parse(req.url, true);
-        if(q.pathname === '/'){
-            fs.readFile('index.html', function(err, data){
-                res.writeHead(200, {'Content-Type':'text/html'});
-                res.write(data)
-                res.end()
-            })
+        let page404 = fs.readFileSync("404.html", (err, data) => {
+            if (err) throw err;
+            return data;
+        });
+        let filename = "." + q.pathname + ".html"
+        if (q.pathname === "/"){
+            filename = "index.html";
         }
-        // else if(q.pathname === '/index.html'){
-        //     fs.readFile('index.html', function(err, data){
-        //         res.writeHead(200, {'Content-Type':'text/html'});
-        //         res.end()
-        //     })
-        // }
-        // fs.readFile('index.html', function(err, data){
-            // res.writeHead(200, {'Content-Type': 'text/html'});
-            // var q = url.parse(req.url, true).query;
-        //res.write(req.url)
-            // res.end(data);
-        //})
+        fs.readFile(filename, (err, data) => {
+            if (err){
+                res.write(page404);
+                return res.end();
+            }
+            res.writeHead(200, {'Content-Type':'text/html'});
+            res.write(data);
+            return res.end();
+        })
     })
     .listen(8080);
